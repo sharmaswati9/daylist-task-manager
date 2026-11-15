@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8fc">
+  <meta name="description" content="A simple, private task manager. No accounts or APIs required.">
+  <title>Daylist — Simple Task Manager</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <a class="brand" href="./" aria-label="Daylist home"><span class="brand-icon">✓</span><span>daylist<span class="brand-period">.</span></span></a>
+      <div class="sidebar-section-label">WORKSPACE</div>
+      <nav class="sidebar-nav" aria-label="Task views">
+        <button class="nav-link selected" data-filter="all"><span class="nav-icon">▦</span> Overview <span class="nav-count" id="nav-total">0</span></button>
+        <button class="nav-link" data-filter="todo"><span class="nav-icon">○</span> To do</button>
+        <button class="nav-link" data-filter="in_progress"><span class="nav-icon">◐</span> In progress</button>
+        <button class="nav-link" data-filter="done"><span class="nav-icon">✓</span> Completed</button>
+        <button class="nav-link" data-filter="overdue"><span class="nav-icon">⚑</span> Overdue <span class="nav-count warning-count" id="nav-overdue" hidden>0</span></button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-note"><span class="note-star">✦</span><strong>Make progress, daily.</strong><p>One clear task at a time. Your data stays in this browser.</p></div>
+      <div class="sidebar-footer"><span class="privacy-dot"></span> Private, local & free</div>
+    </aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div><div class="eyebrow" id="current-date">TODAY</div><h1>Your workspace <span class="sparkle">✳</span></h1><p class="subtitle">A little progress goes a long way.</p></div>
+        <button class="btn btn-primary" id="new-task-top"><span class="plus">＋</span> New task</button>
+      </header>
+
+      <div class="alert-banner" id="alert-banner" hidden><span class="alert-bell">♧</span><div><strong id="alert-heading">Deadlines need attention</strong><p id="alert-description"></p></div><button class="alert-dismiss" id="dismiss-alert" aria-label="Dismiss alert">×</button></div>
+      <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
+
+      <section class="metrics" aria-label="Task statistics">
+        <div class="metric"><div class="metric-label">Total tasks <span class="metric-icon violet">▤</span></div><strong id="metric-total">0</strong><small>Everything on your list</small></div>
+        <div class="metric"><div class="metric-label">In progress <span class="metric-icon blue">◷</span></div><strong id="metric-progress">0</strong><small>Currently moving forward</small></div>
+        <div class="metric"><div class="metric-label">Completed <span class="metric-icon green">✓</span></div><strong id="metric-done">0</strong><small>Wins worth celebrating</small></div>
+        <div class="metric"><div class="metric-label">Overdue <span class="metric-icon orange">⚑</span></div><strong id="metric-overdue">0</strong><small>Deadlines to revisit</small></div>
+      </section>
+
+      <div class="layout">
+        <section class="panel tasks-panel" aria-label="Tasks">
+          <div class="panel-title-row"><div><h2>Your tasks</h2><p class="subtitle small">Plan it. Do it. Check it off.</p></div><button class="link-button" id="new-task-inline">＋ Add task</button></div>
+          <div class="task-toolbar"><label class="search-field"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Search tasks..." aria-label="Search tasks"></label><select id="sort" aria-label="Sort tasks"><option value="due">Due date</option><option value="priority">Priority</option><option value="created">Recently added</option></select></div>
+          <div class="filter-tabs" aria-label="Filter tasks"><button class="filter-tab active" data-filter="all">All</button><button class="filter-tab" data-filter="todo">To do</button><button class="filter-tab" data-filter="in_progress">In progress</button><button class="filter-tab" data-filter="done">Done</button><button class="filter-tab" data-filter="overdue">Overdue</button></div>
+          <div class="task-list" id="task-list"></div>
+        </section>
+
+        <div class="right-column">
+          <section class="panel progress-panel"><div class="panel-title-row"><div><h2>Overall progress</h2><p class="subtitle small">Every step counts.</p></div><span class="panel-decoration">✦</span></div><div class="progress-center"><div class="progress-ring" id="progress-ring"><div class="progress-inner"><strong id="progress-number">0%</strong><span>complete</span></div></div></div><div class="progress-legend"><span><i class="dot completed-dot"></i> Completed <b id="legend-done">0</b></span><span><i class="dot remaining-dot"></i> Remaining <b id="legend-open">0</b></span></div><p class="progress-caption">Progress is based on each task's completion percentage.</p></section>
+          <section class="panel deadlines-panel"><div class="panel-title-row"><div><h2>Upcoming deadlines</h2><p class="subtitle small">Stay one step ahead.</p></div><span class="panel-decoration">▦</span></div><div id="upcoming-list" class="upcoming-list"></div></section>
+          <section class="panel tools-panel"><div class="panel-title-row"><div><h2>Reminders & backup</h2><p class="subtitle small">Simple tools, no sign-in.</p></div></div><button class="utility-button" id="enable-notifications"><span>♧</span><span id="notification-label">Enable browser alerts</span><span class="utility-arrow">›</span></button><button class="utility-button" id="export-data"><span>↓</span><span>Export tasks as backup</span><span class="utility-arrow">›</span></button><button class="utility-button" id="import-data"><span>↑</span><span>Import a backup</span><span class="utility-arrow">›</span></button><input id="import-file" type="file" accept="application/json,.json" hidden><p class="tools-note">Alerts work while this page is open. Tasks are stored only in this browser; export a backup before clearing browser data.</p></section>
+        </div>
+      </div>
+      <footer>Daylist · Made for focused days · No accounts, APIs, or subscriptions</footer>
+    </main>
+  </div>
+
+  <dialog id="task-dialog" class="task-dialog" aria-labelledby="dialog-title">
+    <form id="task-form" novalidate>
+      <div class="dialog-heading"><div><div class="eyebrow">YOUR NEXT STEP</div><h2 id="dialog-title">Add a new task</h2></div><button class="close-dialog" type="button" id="close-dialog" aria-label="Close">×</button></div>
+      <label class="field">Task name <input id="task-title" name="title" maxlength="120" placeholder="e.g. Finish monthly report" required></label>
+      <label class="field">Description <span class="optional">(optional)</span><textarea id="task-description" name="description" rows="3" maxlength="1000" placeholder="Any notes or next steps..."></textarea></label>
+      <div class="two-fields"><label class="field">Start date <input id="task-start" name="start" type="date"></label><label class="field">Due date <input id="task-due" name="due" type="date" required></label></div>
+      <label class="field">Priority <select id="task-priority" name="priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></label>
+      <label class="field">Progress <span id="progress-value" class="progress-value">0%</span><input id="task-percent" name="progress" type="range" min="0" max="100" step="10" value="0"></label>
+      <p class="field-help">0% = To do · 1–99% = In progress · 100% = Done</p>
+      <div class="dialog-actions"><button class="btn btn-outline" type="button" id="cancel-task">Cancel</button><button class="btn btn-primary" type="submit" id="save-task">Save task</button></div>
+    </form>
+  </dialog>
+</body>
+</html>
